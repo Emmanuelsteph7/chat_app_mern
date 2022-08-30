@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .container {
+    max-width: 102.4rem !important;
+    width: 90%;
+  }
+
+  @screen lg {
+    .container {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  }
+
+  @media screen and (min-width: 1440px) {
+    .container {
+      max-width: 128rem !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  }
+}
