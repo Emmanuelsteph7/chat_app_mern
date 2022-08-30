@@ -1,0 +1,43 @@
+steps
+1, create .gitignore file
+2, initialize my package.json file
+3, create .nvmrc by running the following
+node -v > .nvmrc
+the reason for this is to enforce the similar node versions across a team of developers
+4, add typescript
+yarn add -D typescript ts-node @types/node
+5, initialize tsc file
+npx tsc --init
+6, add eslint
+add the eslint plugin in vscode
+yarn add -D eslint
+7, initialize or configure eslint
+npx eslint --init
+i checked - to check syntax, find problems and enforce code style
+i used airbnb
+at the end, it will prompt you to install some dependencies
+it installed the following: 
+"@typescript-eslint/eslint-plugin": "^5.33.0",
+"@typescript-eslint/parser": "^5.33.0",
+"eslint-config-airbnb-base": "^15.0.0",
+"eslint-plugin-import": "^2.25.2",
+8, add .eslintignore file. because we don't want our node modules and build/dist files to be linted
+9, add prettier
+add the prettier plugin
+yarn add -D prettier
+create .prettierrc file
+yarn add -D eslint-plugin-prettier eslint-config-prettier
+10, set up absolute path config
+yarn add -D eslint-import-resolver-typescript tsconfig-paths
+11, set up nodemon
+yarn add -D nodemon
+make a nodemon.json file with its configurations
+12, set up .env
+yarn add -D dotenv
+13, set up jest
+yarn add -D jest ts-jest @types/jest
+14, initialize jest
+npx ts-jest config:init
+15, set up custom logger, mongoose and express
+yarn add chalk@4.1.2 mongoose express
+yarn add -D @types/express
