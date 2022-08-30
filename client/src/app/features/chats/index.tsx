@@ -1,20 +1,10 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import {
-  CreateGroupChatPayload,
-  createGroupChatService,
-  getChatsService,
-  getSelectedChatService
-} from 'services/chat';
+import { createSlice } from '@reduxjs/toolkit';
 import { ChatI } from 'types/client';
+import { createGroupChat, getChats, getSelectedChat, renameGroup } from './actionCreators';
 
 interface StaticState {
   loading: boolean;
   error: string | null;
-}
-
-interface StaticOptions {
-  successAlert: AlertI;
-  errorAlert: AlertI;
 }
 
 interface SelectedChatI extends StaticState {
@@ -53,99 +43,16 @@ const initialState: ChatState = {
   }
 };
 
-type AlertI = ({ message, title }: { message: string; title?: string | undefined }) => void;
+const handleChatReplace = (chat: ChatI, chatArray: ChatI[]) => {
+  const chatIndex = chatArray.findIndex((item) => item._id === chat._id);
 
-interface GetSelectedChatOptions extends StaticOptions {
-  payload: {
-    userId: string;
-    token: string;
-    closeNav: () => void;
-  };
-}
-
-interface GetChatsOptions extends StaticOptions {
-  payload: {
-    token: string;
-  };
-}
-
-interface CreateGroupChatOptions extends StaticOptions {
-  payload: {
-    token: string;
-    data: CreateGroupChatPayload;
-    otherFunc: () => void;
-  };
-}
-
-export const getSelectedChat = createAsyncThunk(
-  'chat/getSelectedChat',
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async ({ payload, successAlert, errorAlert }: GetSelectedChatOptions, { rejectWithValue }) => {
-    try {
-      const res = await getSelectedChatService(payload.token, { userId: payload.userId });
-
-      payload.closeNav();
-      return res.data?.data[0] as ChatI;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.log(error);
-      errorAlert({
-        message: error?.response?.data?.errMessage,
-        title: 'Error'
-      });
-      return rejectWithValue(error?.response?.data?.errMessage);
-    }
+  if (chatIndex > -1) {
+    chatArray.splice(chatIndex, 1, chat);
+    return chatArray;
+  } else {
+    return [chat, ...chatArray];
   }
-);
-
-export const getChats = createAsyncThunk(
-  'chat/getChats',
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async ({ payload, successAlert, errorAlert }: GetChatsOptions, { rejectWithValue }) => {
-    try {
-      const res = await getChatsService(payload.token);
-
-      return res.data?.data as ChatI[];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.log(error);
-      errorAlert({
-        message: error?.response?.data?.errMessage,
-        title: 'Error'
-      });
-      return rejectWithValue(error?.response?.data?.errMessage);
-    }
-  }
-);
-
-export const createGroupChat = createAsyncThunk(
-  'chat/createGroupChat',
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async ({ payload, successAlert, errorAlert }: CreateGroupChatOptions, { rejectWithValue }) => {
-    try {
-      const res = await createGroupChatService(payload.token, payload.data);
-
-      if (res.data?.data) {
-        successAlert({
-          message: 'Group created',
-          title: 'Success'
-        });
-
-        payload.otherFunc();
-      }
-
-      return res.data?.data as ChatI;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.log(error);
-      errorAlert({
-        message: error?.response?.data?.errMessage,
-        title: 'Error'
-      });
-      return rejectWithValue(error?.response?.data?.errMessage);
-    }
-  }
-);
+};
 
 export const chatSlice = createSlice({
   name: 'chat',
@@ -200,6 +107,22 @@ export const chatSlice = createSlice({
       state.allChats.data = [actions.payload, ...state.allChats.data!];
     });
     builders.addCase(createGroupChat.rejected, (state, actions) => {
+      state.groupChat.loading = false;
+      state.groupChat.error = (actions.payload as string) || 'Error fetching chats';
+      state.groupChat.data = null;
+    });
+    builders.addCase(renameGroup.pending, (state) => {
+      state.groupChat.loading = true;
+    });
+    builders.addCase(renameGroup.fulfilled, (state, actions) => {
+      state.groupChat.loading = false;
+      state.groupChat.error = null;
+      state.groupChat.data = actions.payload;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      state.allChats.data = handleChatReplace(actions.payload, state.allChats.data!);
+      // state.allChats.data = [actions.payload, ...state.allChats.data!];
+    });
+    builders.addCase(renameGroup.rejected, (state, actions) => {
       state.groupChat.loading = false;
       state.groupChat.error = (actions.payload as string) || 'Error fetching chats';
       state.groupChat.data = null;

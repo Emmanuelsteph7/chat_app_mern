@@ -1,5 +1,4 @@
 import { AxiosConfig } from 'config/axiosConfig';
-import { UserI } from 'types/client';
 
 const config = (token: string) => {
   return {
@@ -19,6 +18,11 @@ export interface CreateGroupChatPayload {
   users: string;
 }
 
+export interface RenameGroupPayload {
+  name: string;
+  chatId: string;
+}
+
 export const getSelectedChatService = async (token: string, payload: GetSelectedChatPayload) => {
   return await AxiosConfig.get(`/api/chat/getOneOnOneChat?userId=${payload.userId}`, config(token));
 };
@@ -29,4 +33,8 @@ export const getChatsService = async (token: string) => {
 
 export const createGroupChatService = async (token: string, payload: CreateGroupChatPayload) => {
   return await AxiosConfig.post(`/api/chat/createGroupChat`, payload, config(token));
+};
+
+export const renameGroupService = async (token: string, payload: RenameGroupPayload) => {
+  return await AxiosConfig.put(`/api/chat/renameGroup`, payload, config(token));
 };

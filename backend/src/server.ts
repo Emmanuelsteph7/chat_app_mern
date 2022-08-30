@@ -1,6 +1,7 @@
 import express from 'express';
 import http from 'http';
 import mongoose from 'mongoose';
+import cors from 'cors';
 import { config } from '@src/config/config';
 import Logging from '@src/library/Logging';
 import { errorMiddleware, notFound } from '@src/middleware';
@@ -43,6 +44,7 @@ function startServer() {
   /** Middlewares */
   app.use(express.urlencoded({ extended: true }));
   app.use(express.json());
+  app.use(cors());
 
   /** API Rules */
   // eslint-disable-next-line consistent-return

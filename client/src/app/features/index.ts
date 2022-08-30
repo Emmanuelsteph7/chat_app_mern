@@ -7,12 +7,5 @@ export {
   setUser
 } from './user';
 export { default as GetUsersReducer, getUsers, getUsersSlice, setUsers } from './allUsers';
-export {
-  default as ChatReducer,
-  chatSlice,
-  getChats,
-  getSelectedChat,
-  setSelectedChat,
-  createGroupChat,
-  updateAllChats
-} from './chats';
+export { default as ChatReducer, chatSlice, setSelectedChat, updateAllChats } from './chats';
+export * from './chats/actionCreators';
