@@ -31,8 +31,15 @@ const registerUser = catchAsyncErrors(async (req: Request, res: Response, next: 
 
     res.status(201).json({
       success: true,
-      // eslint-disable-next-line no-underscore-dangle
-      data: { id: user._id, name: user.name, email: user.email, picture: user.picture, token: generateToken(user._id) },
+      data: {
+        // eslint-disable-next-line no-underscore-dangle
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        picture: user.picture,
+        // eslint-disable-next-line no-underscore-dangle
+        token: generateToken(user._id),
+      },
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -60,8 +67,15 @@ const loginUser = catchAsyncErrors(async (req: Request, res: Response, next: Nex
 
     res.status(200).json({
       success: true,
-      // eslint-disable-next-line no-underscore-dangle
-      data: { name: user.name, email: user.email, picture: user.picture, token: generateToken(user._id) },
+      data: {
+        // eslint-disable-next-line no-underscore-dangle
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        picture: user.picture,
+        // eslint-disable-next-line no-underscore-dangle
+        token: generateToken(user._id),
+      },
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {

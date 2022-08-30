@@ -1,5 +1,5 @@
 import { Dialog } from '@headlessui/react';
-import { getUsers, renameGroup, setUsers } from 'app/index';
+import { addUserToGroup, getUsers, removeUserFromGroup, renameGroup, setUsers } from 'app/index';
 import { RootState, useAppDispatch } from 'app/store';
 import {
   Button,
@@ -34,9 +34,11 @@ const UpdateGroupModal: React.FC<Props> = ({ handleClose, state, data }) => {
     search: '',
     users: []
   });
+  const [isUserAdmin, setIsUserAdmin] = useState(false);
 
   const dispatch = useAppDispatch();
   const token = useSelector((state: RootState) => state.user.user?.token);
+  const user = useSelector((state: RootState) => state.user.user);
   const users = useSelector((state: RootState) => state.users);
   const debouncedSearch = useDebounce(formState.search, 1000);
 
@@ -83,6 +85,14 @@ const UpdateGroupModal: React.FC<Props> = ({ handleClose, state, data }) => {
     }
   }, [data]);
 
+  useEffect(() => {
+    if (data && data.groupAdmin?._id === user?._id) {
+      setIsUserAdmin(true);
+    } else {
+      setIsUserAdmin(false);
+    }
+  }, [data, user]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setFormState((prev) => ({
       ...prev,
@@ -106,20 +116,41 @@ const UpdateGroupModal: React.FC<Props> = ({ handleClose, state, data }) => {
   };
 
   const handleAddUser = (user: UserI) => {
-    setFormState((prev) => {
-      const copied = [...prev.users];
+    dispatch(
+      addUserToGroup({
+        successAlert,
+        errorAlert,
+        payload: {
+          data: {
+            userId: user._id || '',
+            chatId: data?._id || ''
+          },
+          token: token || ''
+        }
+      })
+    );
 
-      const userIndex = copied.findIndex((item) => item._id === user._id);
+    dispatch(
+      setUsers({
+        payload: []
+      })
+    );
+  };
 
-      if (userIndex > -1) {
-        copied.splice(userIndex, 1);
-      }
-      return {
-        ...prev,
-        users: [user, ...copied],
-        search: ''
-      };
-    });
+  const handleRemoveUser = (user: UserI) => {
+    dispatch(
+      removeUserFromGroup({
+        successAlert,
+        errorAlert,
+        payload: {
+          data: {
+            userId: user._id || '',
+            chatId: data?._id || ''
+          },
+          token: token || ''
+        }
+      })
+    );
 
     dispatch(
       setUsers({
@@ -141,7 +172,7 @@ const UpdateGroupModal: React.FC<Props> = ({ handleClose, state, data }) => {
           <div className="flex flex-wrap items-center mb-4">
             {formState?.users.map((user) => (
               <div className="mr-2" key={user._id}>
-                <UserPeel user={user} />
+                <UserPeel onClick={() => handleRemoveUser(user)} user={user} />
               </div>
             ))}
           </div>
@@ -159,12 +190,14 @@ const UpdateGroupModal: React.FC<Props> = ({ handleClose, state, data }) => {
                 Update
               </Button>
             </div>
-            <FormField
-              name="search"
-              onChange={handleChange}
-              placeholder="Add Users eg: John, Barry, etc"
-              value={formState.search}
-            />
+            {isUserAdmin && (
+              <FormField
+                name="search"
+                onChange={handleChange}
+                placeholder="Add Users eg: John, Barry, etc"
+                value={formState.search}
+              />
+            )}
           </div>
 
           <div className="max-h-250 overflow-auto mb-4">

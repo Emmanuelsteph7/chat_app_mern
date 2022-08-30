@@ -1,6 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { ChatI } from 'types/client';
-import { createGroupChat, getChats, getSelectedChat, renameGroup } from './actionCreators';
+import {
+  addUserToGroup,
+  createGroupChat,
+  getChats,
+  getSelectedChat,
+  removeUserFromGroup,
+  renameGroup
+} from './actionCreators';
 
 interface StaticState {
   loading: boolean;
@@ -123,6 +130,40 @@ export const chatSlice = createSlice({
       // state.allChats.data = [actions.payload, ...state.allChats.data!];
     });
     builders.addCase(renameGroup.rejected, (state, actions) => {
+      state.groupChat.loading = false;
+      state.groupChat.error = (actions.payload as string) || 'Error fetching chats';
+      state.groupChat.data = null;
+    });
+    builders.addCase(addUserToGroup.pending, (state) => {
+      state.groupChat.loading = true;
+    });
+    builders.addCase(addUserToGroup.fulfilled, (state, actions) => {
+      state.groupChat.loading = false;
+      state.groupChat.error = null;
+      state.groupChat.data = actions.payload;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      state.allChats.data = handleChatReplace(actions.payload, state.allChats.data!);
+      state.selectedChat.data = actions.payload;
+      // state.allChats.data = [actions.payload, ...state.allChats.data!];
+    });
+    builders.addCase(addUserToGroup.rejected, (state, actions) => {
+      state.groupChat.loading = false;
+      state.groupChat.error = (actions.payload as string) || 'Error fetching chats';
+      state.groupChat.data = null;
+    });
+    builders.addCase(removeUserFromGroup.pending, (state) => {
+      state.groupChat.loading = true;
+    });
+    builders.addCase(removeUserFromGroup.fulfilled, (state, actions) => {
+      state.groupChat.loading = false;
+      state.groupChat.error = null;
+      state.groupChat.data = actions.payload;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      state.allChats.data = handleChatReplace(actions.payload, state.allChats.data!);
+      state.selectedChat.data = actions.payload;
+      // state.allChats.data = [actions.payload, ...state.allChats.data!];
+    });
+    builders.addCase(removeUserFromGroup.rejected, (state, actions) => {
       state.groupChat.loading = false;
       state.groupChat.error = (actions.payload as string) || 'Error fetching chats';
       state.groupChat.data = null;

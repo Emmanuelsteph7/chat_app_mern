@@ -23,6 +23,14 @@ export interface RenameGroupPayload {
   chatId: string;
 }
 
+export interface AddUserToGroupPayload {
+  userId: string;
+  chatId: string;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface RemoveUserFromGroupPayload extends AddUserToGroupPayload {}
+
 export const getSelectedChatService = async (token: string, payload: GetSelectedChatPayload) => {
   return await AxiosConfig.get(`/api/chat/getOneOnOneChat?userId=${payload.userId}`, config(token));
 };
@@ -37,4 +45,15 @@ export const createGroupChatService = async (token: string, payload: CreateGroup
 
 export const renameGroupService = async (token: string, payload: RenameGroupPayload) => {
   return await AxiosConfig.put(`/api/chat/renameGroup`, payload, config(token));
+};
+
+export const addUserToGroupService = async (token: string, payload: AddUserToGroupPayload) => {
+  return await AxiosConfig.put(`/api/chat/addUserToGroup`, payload, config(token));
+};
+
+export const removeUserFromGroupService = async (
+  token: string,
+  payload: RemoveUserFromGroupPayload
+) => {
+  return await AxiosConfig.put(`/api/chat/removeUserFromGroup`, payload, config(token));
 };

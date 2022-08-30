@@ -1,9 +1,13 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import {
+  AddUserToGroupPayload,
+  addUserToGroupService,
   CreateGroupChatPayload,
   createGroupChatService,
   getChatsService,
   getSelectedChatService,
+  RemoveUserFromGroupPayload,
+  removeUserFromGroupService,
   RenameGroupPayload,
   renameGroupService
 } from 'services/chat';
@@ -42,6 +46,22 @@ interface RenameGroupOptions extends StaticOptions {
   payload: {
     token: string;
     data: RenameGroupPayload;
+    otherFunc?: () => void;
+  };
+}
+
+interface AddUserToGroupOptions extends StaticOptions {
+  payload: {
+    token: string;
+    data: AddUserToGroupPayload;
+    otherFunc?: () => void;
+  };
+}
+
+interface RemoveUserFromGroupOptions extends StaticOptions {
+  payload: {
+    token: string;
+    data: RemoveUserFromGroupPayload;
     otherFunc?: () => void;
   };
 }
@@ -126,6 +146,71 @@ export const renameGroup = createAsyncThunk(
       if (res.data?.data) {
         successAlert({
           message: 'Group created',
+          title: 'Success'
+        });
+
+        if (payload.otherFunc) {
+          payload?.otherFunc();
+        }
+      }
+
+      return res.data?.data as ChatI;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.log(error);
+      errorAlert({
+        message: error?.response?.data?.errMessage,
+        title: 'Error'
+      });
+      return rejectWithValue(error?.response?.data?.errMessage);
+    }
+  }
+);
+
+export const addUserToGroup = createAsyncThunk(
+  'chat/addUserToGroup',
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async ({ payload, successAlert, errorAlert }: AddUserToGroupOptions, { rejectWithValue }) => {
+    try {
+      const res = await addUserToGroupService(payload.token, payload.data);
+
+      if (res.data?.data) {
+        successAlert({
+          message: 'User Added',
+          title: 'Success'
+        });
+
+        if (payload.otherFunc) {
+          payload?.otherFunc();
+        }
+      }
+
+      return res.data?.data as ChatI;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.log(error);
+      errorAlert({
+        message: error?.response?.data?.errMessage,
+        title: 'Error'
+      });
+      return rejectWithValue(error?.response?.data?.errMessage);
+    }
+  }
+);
+
+export const removeUserFromGroup = createAsyncThunk(
+  'chat/removeUserFromGroup',
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async (
+    { payload, successAlert, errorAlert }: RemoveUserFromGroupOptions,
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await removeUserFromGroupService(payload.token, payload.data);
+
+      if (res.data?.data) {
+        successAlert({
+          message: 'User Removed',
           title: 'Success'
         });
 
