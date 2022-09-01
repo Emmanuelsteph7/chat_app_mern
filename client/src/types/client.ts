@@ -15,3 +15,10 @@ export interface ChatI {
   groupAdmin: UserI | null;
   _id: string;
 }
+
+export interface MessageI {
+  sender: UserI;
+  content: string;
+  chat: ChatI;
+  _id: string;
+}

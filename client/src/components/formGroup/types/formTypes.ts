@@ -3,6 +3,7 @@ import React from 'react';
 export interface FormInputI extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   className?: string;
+  inputClassName?: string;
   inputRef?: React.Ref<any>;
   error?: string;
   name: string;

@@ -9,3 +9,5 @@ export {
 export { default as GetUsersReducer, getUsers, getUsersSlice, setUsers } from './allUsers';
 export { default as ChatReducer, chatSlice, setSelectedChat, updateAllChats } from './chats';
 export * from './chats/actionCreators';
+export { default as MessageReducer, messageSlice } from './message';
+export * from './message/actionCreators';

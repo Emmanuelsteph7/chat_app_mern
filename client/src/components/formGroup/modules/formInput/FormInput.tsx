@@ -9,6 +9,7 @@ const FormInput: React.FC<FormInputI> = ({
   className,
   // inputRef,
   error,
+  inputClassName,
   type = 'text',
   ...props
 }) => {
@@ -17,6 +18,13 @@ const FormInput: React.FC<FormInputI> = ({
   const classes = cs('flex flex-col mb-5', {
     [`${className}`]: className
   });
+
+  const inputClasses = cs(
+    'w-full bg-slate-200 focus:bg-white duration-150 px-3 py-2 rounded shadow outline-none',
+    {
+      [`${inputClassName}`]: inputClassName
+    }
+  );
 
   const id = useId();
 
@@ -37,12 +45,7 @@ const FormInput: React.FC<FormInputI> = ({
     <div className={classes}>
       {label && <LabelText id={id}>{label}</LabelText>}
       <div className="relative">
-        <input
-          type={inputType()}
-          id={id}
-          className="w-full bg-slate-200 focus:bg-white duration-150 px-3 py-2 rounded shadow outline-none"
-          {...props}
-        />
+        <input type={inputType()} id={id} className={inputClasses} {...props} />
         {type === 'password' && (
           <button
             type="button"
