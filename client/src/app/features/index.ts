@@ -11,3 +11,9 @@ export { default as ChatReducer, chatSlice, setSelectedChat, updateAllChats } fr
 export * from './chats/actionCreators';
 export { default as MessageReducer, messageSlice, addMessage } from './message';
 export * from './message/actionCreators';
+export {
+  default as NotificationReducer,
+  notificationSlice,
+  addNotification,
+  removeNotification
+} from './notifications';

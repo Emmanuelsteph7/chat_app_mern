@@ -106,8 +106,6 @@ function startServer() {
     socket.on(EventsObj.NewMessage, (message: MessageI) => {
       const { chat } = message;
 
-      console.log(message);
-
       if (!chat.users) return Logging.warn('chat.users not defined');
 
       chat.users.forEach(user => {

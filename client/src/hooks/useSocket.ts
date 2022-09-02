@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import { EventsObj, MessageI } from 'types/client';
 import { useSelector } from 'react-redux';
 import { RootState, useAppDispatch } from 'app/store';
-import { addMessage } from 'app/index';
+import { addMessage, addNotification } from 'app/index';
 
 const SOCKET_ENDPOINT = 'http://localhost:5000';
 
@@ -27,6 +27,7 @@ const useSocket = () => {
     socket.on(EventsObj.MessageReceived, (message: MessageI) => {
       if (!selectedChat || selectedChat._id !== message.chat._id) {
         // give notification
+        dispatch(addNotification(message));
       } else {
         dispatch(addMessage(message));
       }
