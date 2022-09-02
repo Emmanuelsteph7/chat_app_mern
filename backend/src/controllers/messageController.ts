@@ -49,7 +49,7 @@ const sendMessage = catchAsyncErors(async (req: ExtendedRequest, res: Response, 
       latestMessage: messageUpdate,
     });
 
-    res.status(200).json({
+    res.status(201).json({
       success: true,
       data: messageUpdate,
     });

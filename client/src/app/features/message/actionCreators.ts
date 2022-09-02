@@ -21,7 +21,7 @@ interface SendMessageOptions extends StaticOptions {
   payload: {
     data: SendMessagePayload;
     token: string;
-    otherFunc?: () => void;
+    otherFunc?: (message?: MessageI) => void;
   };
 }
 
@@ -59,7 +59,7 @@ export const sendMessage = createAsyncThunk(
 
       if (res.data?.data) {
         if (payload.otherFunc) {
-          payload.otherFunc();
+          payload.otherFunc(res.data?.data);
         }
       }
       return res.data?.data as MessageI;

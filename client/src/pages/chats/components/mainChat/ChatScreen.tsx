@@ -4,12 +4,14 @@ import { Button, FormField, ProfileModal, Text, useErrorAlert, useSuccessAlert }
 import React, { useEffect, useState } from 'react';
 import { CgEye } from 'react-icons/cg';
 import { useSelector } from 'react-redux';
-import { ChatI } from 'types/client';
+import { ChatI, EventsObj, MessageI } from 'types/client';
 import { getSender } from 'utils';
 import { getSenderFull } from 'utils/getSender';
 import MessageBox from './MessageBox';
 import UpdateGroupModal from './UpdateGroupModal';
 import ScrollableFeed from 'react-scrollable-feed';
+import { useSocket } from 'hooks';
+import { typingGif } from 'assets';
 
 interface Props {
   data: ChatI | null;
@@ -19,6 +21,8 @@ const ChatScreen: React.FC<Props> = ({ data }) => {
   const [isProfileShown, setIsProfileShown] = useState(false);
   const [isGroupUpdateShown, setIsGroupUpdateShown] = useState(false);
   const [message, setMessage] = useState('');
+  const [typing, setTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
   const dispatch = useAppDispatch();
   const user = useSelector((state: RootState) => state.user.user);
@@ -27,6 +31,7 @@ const ChatScreen: React.FC<Props> = ({ data }) => {
 
   const successAlert = useSuccessAlert();
   const errorAlert = useErrorAlert();
+  const { socket, isSocketConnected } = useSocket();
 
   const handleOpenProfile = () => setIsProfileShown(true);
   const handleCloseProfile = () => setIsProfileShown(false);
@@ -38,6 +43,11 @@ const ChatScreen: React.FC<Props> = ({ data }) => {
     handleGetMessage();
   }, [data?._id]);
 
+  useEffect(() => {
+    socket.on(EventsObj.Typing, () => setIsTyping(true));
+    socket.on(EventsObj.StopTyping, () => setIsTyping(false));
+  }, []);
+
   const handleOpen = () => {
     if (data?.isGroupChat) {
       handleOpenGroupUpdate();
@@ -46,12 +56,15 @@ const ChatScreen: React.FC<Props> = ({ data }) => {
     }
   };
 
-  const onSendSuccess = () => {
+  const onSendSuccess = (message?: MessageI) => {
     setMessage('');
+    socket.emit(EventsObj.NewMessage, message);
   };
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    socket.emit(EventsObj.StopTyping, data?._id);
 
     dispatch(
       sendMessage({
@@ -69,6 +82,10 @@ const ChatScreen: React.FC<Props> = ({ data }) => {
     );
   };
 
+  const onGetMessageSuccess = () => {
+    socket.emit(EventsObj.JoinRoom, data?._id);
+  };
+
   const handleGetMessage = () => {
     dispatch(
       getMessages({
@@ -76,10 +93,39 @@ const ChatScreen: React.FC<Props> = ({ data }) => {
         errorAlert,
         payload: {
           chatId: data?._id || '',
-          token: token || ''
+          token: token || '',
+          otherFunc: onGetMessageSuccess
         }
       })
     );
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMessage(e.target.value);
+
+    if (!isSocketConnected) return;
+
+    if (!typing) {
+      setTyping(true);
+      socket.emit(EventsObj.Typing, data?._id);
+    }
+
+    checkTimer();
+  };
+
+  const checkTimer = () => {
+    const lastTypingTime = new Date().getTime();
+    const timerLength = 3000;
+
+    setTimeout(() => {
+      const timeNow = new Date().getTime();
+      const timeDiff = timeNow - lastTypingTime;
+
+      if (timeDiff >= timerLength && typing) {
+        socket.emit(EventsObj.StopTyping, data?._id);
+        setTyping(false);
+      }
+    }, timerLength);
   };
 
   return (
@@ -108,6 +154,11 @@ const ChatScreen: React.FC<Props> = ({ data }) => {
           </ScrollableFeed>
         </div>
       </div>
+      {isTyping && (
+        <div className="h-5">
+          <img className="w-14" src={typingGif} alt="" />
+        </div>
+      )}
       <form
         action=""
         onSubmit={handleSendMessage}
@@ -117,7 +168,7 @@ const ChatScreen: React.FC<Props> = ({ data }) => {
           name="message"
           inputClassName="bg-white"
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={handleChange}
         />
         <Button className="py-2">Send</Button>
       </form>

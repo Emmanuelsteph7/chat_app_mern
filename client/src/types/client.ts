@@ -22,3 +22,14 @@ export interface MessageI {
   chat: ChatI;
   _id: string;
 }
+
+export enum EventsObj {
+  Setup = 'setup',
+  Connection = 'connection',
+  Connected = 'connected',
+  JoinRoom = 'join room',
+  NewMessage = 'new message',
+  MessageReceived = 'message received',
+  Typing = 'typing',
+  StopTyping = 'stop typing'
+}

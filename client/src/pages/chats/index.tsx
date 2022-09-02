@@ -1,7 +1,9 @@
+import { useSocket } from 'hooks';
 import React from 'react';
 import { Header, MainChat, MyChats } from './components';
 
 const Chats = () => {
+  useSocket();
   return (
     <div className="flex justify-between items-center gap-5 bg-primary h-screen p-4 pt-20">
       <Header />

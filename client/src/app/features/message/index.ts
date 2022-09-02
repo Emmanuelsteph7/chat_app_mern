@@ -27,6 +27,11 @@ const handleAppendMessage = (message: MessageI, messages: MessageI[] | null) => 
   if (!messages) {
     return [message];
   } else {
+    const messageIndex = messages.findIndex((item) => item._id === message._id);
+
+    if (messageIndex > -1) {
+      return [...messages];
+    }
     return [...messages, message];
   }
 };
@@ -34,7 +39,15 @@ const handleAppendMessage = (message: MessageI, messages: MessageI[] | null) => 
 export const messageSlice = createSlice({
   name: 'message',
   initialState,
-  reducers: {},
+  reducers: {
+    addMessage: (state, actions) => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      state.messages.data = handleAppendMessage(actions.payload, state.messages.data!);
+      // state.messages.data = [...state.messages.data!];
+      state.messages.error = null;
+      state.messages.loading = false;
+    }
+  },
   extraReducers: (builders) => {
     builders.addCase(getMessages.pending, (state) => {
       state.messages.loading = true;
@@ -66,6 +79,6 @@ export const messageSlice = createSlice({
   }
 });
 
-// export const {} = messageSlice.actions;
+export const { addMessage } = messageSlice.actions;
 
 export default messageSlice.reducer;
